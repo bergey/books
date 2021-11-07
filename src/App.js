@@ -1,25 +1,50 @@
 import './App.css';
-import React from 'react'
+import React, { useState } from 'react'
 
 const e = React.createElement;
 
 function App() {
-    // TODO use state
-  const books =
+  const [books, setBooks] = useState(
       [ { title: 'Moby Dick', author: 'Herman Melville' }
       , { title: 'Walden', 'author': 'Henry David Thoreau' }
-      ]
+  ])
+  const emptyInput = {title: '', author: '' }
+  const [input, setInput] = useState(emptyInput)
+
   const rows = books.map(book =>
       e ('tr', {}, e('td', {}, book.title), e('td', {}, book.author), e('td')))
 
-  // TODO JSX?
-  return e(
-      'table',
-      {},
-        e('thead', {}, e('tr', {}, e('th', {}, 'Title'), e('th', {}, 'Author'), e('th', {}, 'Action'))),
-        e('tbody', {}, ...rows,
-        e('tr', {className: 'append'}, e('td', {}, e('input')), e('td', {}, e('input')), e('td', {}, e('button', {}, '+')))
-    ));
+  const inputCell = name => (
+      <td>
+        <input name={name} type="text" value={input[name]}
+          onChange={ev => setInput({...input, [name]: ev.target.value })} />
+      </td>
+  )
+
+  const addRow = () => {
+      setBooks([...books, input])
+      setInput(emptyInput)
+  }
+
+  return (
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows}
+          <tr>
+            {inputCell('title')}
+            {inputCell('author')}
+            <td><button onClick={addRow}>+</button></td>
+          </tr>
+        </tbody>
+      </table>
+  )
 
 }
 
