@@ -3,25 +3,30 @@
 const e = React.createElement;
 
 // TODO function style instead of class style
-class LikeButton extends React.Component {
+class BooksTable extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { liked: false };
+      this.state = {
+          books:
+            [ { title: 'Moby Dick', author: 'Herman Melville' }
+            , { title: 'Walden', 'author': 'Henry David Thoreau' }
+            ]
+      };
   }
 
   render() {
-    if (this.state.liked) {
-      return 'You liked this.';
-    }
+    const rows = this.state.books.map(book =>
+        e ('tr', {}, e('td', {}, book.title), e('td', {}, book.author), e('td')))
 
 // TODO JSX?
     return e(
-      'button',
-      { onClick: () => this.setState({ liked: true }) },
-      'Books!'
-    );
+      'table',
+      {},
+        e('thead', {}, e('tr', {}, e('th', {}, 'Title'), e('th', {}, 'Author'), e('th', {}, 'Action'))),
+        e('tbody', {}, ...rows,
+        e('tr', {className: 'append'}, e('td', {}, e('input')), e('td', {}, e('input')), e('td', {}, e('button', {}, '+')))
+    ));
   }
 }
 
-const domContainer = document.querySelector('#books');
-ReactDOM.render(e(LikeButton), domContainer);
+ReactDOM.render(e(BooksTable), document.querySelector('#books'));
