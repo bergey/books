@@ -1,23 +1,11 @@
 import './App.css';
+import db from './firebase'
 
 /* import { getAnalytics } from "firebase/analytics"; */
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, doc, getDocs, addDoc, deleteDoc } from 'firebase/firestore/lite';
+import { collection, doc, getDocs, addDoc, deleteDoc } from 'firebase/firestore/lite';
 import React, { useEffect, useState } from 'react'
 
-const firebaseConfig = {
-    apiKey: "AIzaSyAvatZfZuSG49YPSN17INahQX6aokYG9q8",
-    authDomain: "books-331420.firebaseapp.com",
-    projectId: "books-331420",
-    storageBucket: "books-331420.appspot.com",
-    messagingSenderId: "97831789532",
-    appId: "1:97831789532:web:24d92bf9be475802c72519",
-    measurementId: "G-29SXV008TY"
-};
-// Initialize Firebase
-const firebase = initializeApp(firebaseConfig);
-/* const analytics = getAnalytics(firebase); */
-const db = getFirestore(firebase);
+
 
 function App() {
   const [books, setBooks] = useState([])
