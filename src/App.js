@@ -2,7 +2,7 @@ import './App.css';
 
 /* import { getAnalytics } from "firebase/analytics"; */
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, addDoc } from 'firebase/firestore/lite';
+import { getFirestore, collection, doc, getDocs, addDoc, deleteDoc } from 'firebase/firestore/lite';
 import React, { useEffect, useState } from 'react'
 
 const firebaseConfig = {
@@ -19,23 +19,29 @@ const firebase = initializeApp(firebaseConfig);
 /* const analytics = getAnalytics(firebase); */
 const db = getFirestore(firebase);
 
-const e = React.createElement;
-
 function App() {
-  const [books, setBooks] = useState(
-      [ { title: 'Moby Dick', author: 'Herman Melville' }
-      , { title: 'Walden', 'author': 'Henry David Thoreau' }
-  ])
+  const [books, setBooks] = useState([])
   const emptyInput = {title: '', author: '' }
   const [input, setInput] = useState(emptyInput)
 
   useEffect( () => ( async () => {
       const upstream = await getDocs(collection(db, 'books'))
-      setBooks(upstream.docs.map(d => d.data()))
+      setBooks(upstream.docs.map(d => ({...d.data(), key: d.id})))
   })(), [])
 
-  const rows = books.map(book =>
-      e ('tr', {}, e('td', {}, book.title), e('td', {}, book.author), e('td')))
+  const deleteBook = (key) => () => (async () => {
+      console.log(`key=${key}`)
+      await deleteDoc(doc(db, 'books', key))
+      setBooks(books.filter( b => b.key !== key))
+    })()
+
+  const rows = books.map(book => (
+      <tr key={book.key}>
+        <td>{book.title}</td>
+        <td>{book.author}</td>
+        <td><button onClick={deleteBook(book.key)}>delete</button></td>
+      </tr>
+  ))
 
   const inputCell = name => (
       <td>
