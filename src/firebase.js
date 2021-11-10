@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore/lite';
-
+import { getAuth } from 'firebase/auth'
+import { GoogleAuthProvider, signInWithPopup  } from "firebase/auth";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAvatZfZuSG49YPSN17INahQX6aokYG9q8",
@@ -13,7 +14,25 @@ const firebaseConfig = {
 };
 // Initialize Firebase
 const firebase = initializeApp(firebaseConfig);
-/* const analytics = getAnalytics(firebase); */
-const db = getFirestore(firebase);
+export const db = getFirestore(firebase);
 
-export default db
+export const auth = getAuth();
+export const provider = new GoogleAuthProvider();
+
+// TODO redirect on mobile instead of popup
+signInWithPopup(auth, provider)
+    .then(result => {
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+        console.log(result.user)
+        console.log(`token=${token}`)
+    }) .catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.email;
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        console.log({errorCode, errorMessage, email})
+    });

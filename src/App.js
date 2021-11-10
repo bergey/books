@@ -1,13 +1,11 @@
 import './App.css';
-import db from './firebase'
+import { auth, db, provider } from './firebase'
+import { onAuthStateChanged} from 'firebase/auth'
 
-/* import { getAnalytics } from "firebase/analytics"; */
 import { collection, doc, getDocs, addDoc, deleteDoc } from 'firebase/firestore/lite';
 import React, { useEffect, useState } from 'react'
 
-
-
-function App() {
+function Books() {
   const [books, setBooks] = useState([])
   const emptyInput = {title: '', author: '' }
   const [input, setInput] = useState(emptyInput)
@@ -65,6 +63,15 @@ function App() {
       </table>
   )
 
+}
+
+function App() {
+    const [user, setUser] = useState()
+    onAuthStateChanged(auth, setUser)
+    return (<>
+        <Books />
+        <p>{user ? `logged in as ${user.displayName}` : 'not logged in'}</p>
+        </>)
 }
 
 export default App;
