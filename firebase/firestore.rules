@@ -4,7 +4,10 @@ service cloud.firestore {
     match /books/{book} {
       allow read, write: if
       	request.auth != null
-          && request.auth.uid == '8YuQcXEwzTYRUc2MPj88sgdVYKJ3' // dmbergey@gmail.com
+          && (
+             request.auth.uid == '8YuQcXEwzTYRUc2MPj88sgdVYKJ3' // dmbergey@gmail.com
+             || request.auth.uid == '3rB3k3LI8jgMMyre26CKNzKvopT2' // christalee.bieber@gmail.com
+             )
     }
   }
 }
