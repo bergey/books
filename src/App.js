@@ -5,7 +5,7 @@ import { signOut, db, onAuthStateChanged, signIn } from './firebase'
 
 function Books({ user }) {
   const [books, setBooks] = useState([])
-  const emptyInput = { title: '', author: '' }
+  const emptyInput = { title: '', author: '', publicationDate: '' }
   const [input, setInput] = useState(emptyInput)
 
   useEffect(
@@ -32,17 +32,18 @@ function Books({ user }) {
     <tr key={book.key}>
       <td>{book.title}</td>
       <td>{book.author}</td>
+      <td>{book.publicationDate || ''}</td>
       <td>
         <button onClick={deleteBook(book.key)}>delete</button>
       </td>
     </tr>
   ))
 
-  const inputCell = name => (
+  const inputCell = (name, ty = 'text') => (
     <td>
       <input
         name={name}
-        type='text'
+        type={ty}
         value={input[name]}
         onChange={ev => setInput({ ...input, [name]: ev.target.value })}
       />
@@ -65,6 +66,7 @@ function Books({ user }) {
         <tr>
           <th>Title</th>
           <th>Author</th>
+          <th>Publication Date</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -73,6 +75,7 @@ function Books({ user }) {
         <tr>
           {inputCell('title')}
           {inputCell('author')}
+          {inputCell('publicationDate', 'number')}
           <td>
             <button onClick={addRow}>+</button>
           </td>
@@ -98,7 +101,7 @@ function App() {
   if (user && user !== undefined) {
     loginStatus = (
       <p>
-        logged in as {user.displayName} <a onClick={signOut}>sign out</a>
+        logged in as {user.displayName} <button onClick={signOut}>sign out</button>
       </p>
     )
   } else {
