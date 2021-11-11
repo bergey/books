@@ -1,8 +1,7 @@
-import './App.css'
-import { db, signIn, onAuthStateChanged } from './firebase'
-
-import { collection, doc, getDocs, addDoc, deleteDoc } from 'firebase/firestore/lite'
+import { addDoc, collection, deleteDoc, doc, getDocs } from 'firebase/firestore/lite'
 import React, { useEffect, useState } from 'react'
+import './App.css'
+import { db, onAuthStateChanged, signIn } from './firebase'
 
 function Books() {
   const [books, setBooks] = useState([])
@@ -18,12 +17,14 @@ function Books() {
     []
   )
 
-  const deleteBook = key => () =>
-    (async () => {
-      console.log(`key=${key}`)
-      await deleteDoc(doc(db, 'books', key))
-      setBooks(books.filter(b => b.key !== key))
-    })()
+  function deleteBook(key) {
+    return () =>
+      (async () => {
+        console.log(`key=${key}`)
+        await deleteDoc(doc(db, 'books', key))
+        setBooks(books.filter(b => b.key !== key))
+      })()
+  }
 
   const rows = books.map(book => (
     <tr key={book.key}>
