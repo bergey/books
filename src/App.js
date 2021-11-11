@@ -1,6 +1,5 @@
 import './App.css';
-import { auth, db, provider } from './firebase'
-import { onAuthStateChanged} from 'firebase/auth'
+import { db, signIn, onAuthStateChanged } from './firebase'
 
 import { collection, doc, getDocs, addDoc, deleteDoc } from 'firebase/firestore/lite';
 import React, { useEffect, useState } from 'react'
@@ -37,9 +36,11 @@ function Books() {
   )
 
   const addRow = () => (async () => {
-      setBooks([...books, input])
+      let newBooks = [...books, input]
+      setBooks(newBooks)
       const bookRef = await addDoc(collection(db, 'books'), input)
-      console.log(`bookRef=${bookRef}`)
+      newBooks[newBooks.length - 1].key = bookRef.id
+      setBooks(newBooks)
       setInput(emptyInput)
   })()
 
@@ -67,7 +68,14 @@ function Books() {
 
 function App() {
     const [user, setUser] = useState()
-    onAuthStateChanged(auth, setUser)
+
+    useEffect(() => {
+        onAuthStateChanged(u => {
+            setUser(u)
+            if (u === undefined) { signIn() }
+        })
+    }, [])
+
     return (<>
         <Books />
         <p>{user ? `logged in as ${user.displayName}` : 'not logged in'}</p>
