@@ -1,9 +1,9 @@
 import { addDoc, collection, deleteDoc, doc, getDocs } from 'firebase/firestore/lite'
 import React, { useEffect, useState } from 'react'
 import './App.css'
-import { db, onAuthStateChanged, signIn } from './firebase'
+import { signOut, db, onAuthStateChanged, signIn } from './firebase'
 
-function Books() {
+function Books({ user }) {
   const [books, setBooks] = useState([])
   const emptyInput = { title: '', author: '' }
   const [input, setInput] = useState(emptyInput)
@@ -11,10 +11,12 @@ function Books() {
   useEffect(
     () =>
       (async () => {
-        const upstream = await getDocs(collection(db, 'books'))
-        setBooks(upstream.docs.map(d => ({ ...d.data(), key: d.id })))
+        if (user) {
+          const upstream = await getDocs(collection(db, 'books'))
+          setBooks(upstream.docs.map(d => ({ ...d.data(), key: d.id })))
+        }
       })(),
-    []
+    [user]
   )
 
   function deleteBook(key) {
@@ -85,17 +87,28 @@ function App() {
 
   useEffect(() => {
     onAuthStateChanged(u => {
-      setUser(u)
-      if (u === undefined) {
+      if (u === null || u === undefined) {
         signIn()
       }
+      setUser(u)
     })
   }, [])
 
+  let loginStatus
+  if (user && user !== undefined) {
+    loginStatus = (
+      <p>
+        logged in as {user.displayName} <a onClick={signOut}>sign out</a>
+      </p>
+    )
+  } else {
+    loginStatus = <p>not logged in</p>
+  }
+
   return (
     <>
-      <Books />
-      <p>{user ? `logged in as ${user.displayName}` : 'not logged in'}</p>
+      <Books user={user} />
+      {loginStatus}
     </>
   )
 }

@@ -34,3 +34,4 @@ export const signIn = () =>
       console.log({ errorCode, errorMessage, email })
     })
 export const onAuthStateChanged = callback => Auth.onAuthStateChanged(auth, callback)
+export const signOut = () => Auth.signOut(auth)
