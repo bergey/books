@@ -1,18 +1,26 @@
-import { addDoc, collection, deleteDoc, doc, getDocs } from 'firebase/firestore/lite'
+import {
+  query,
+  orderBy,
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+} from 'firebase/firestore/lite'
 import React, { useEffect, useState } from 'react'
 import './App.css'
 import { signOut, db, onAuthStateChanged, signIn } from './firebase'
 
 function Books({ user }) {
   const [books, setBooks] = useState([])
-  const emptyInput = { title: '', author: '', publicationDate: '' }
+  const emptyInput = { title: '', author: '', publicationDate: '', tags: [] }
   const [input, setInput] = useState(emptyInput)
 
   useEffect(
     () =>
       (async () => {
         if (user) {
-          const upstream = await getDocs(collection(db, 'books'))
+          const upstream = await getDocs(query(collection(db, 'books'), orderBy('title')))
           setBooks(upstream.docs.map(d => ({ ...d.data(), key: d.id })))
         }
       })(),
@@ -33,6 +41,7 @@ function Books({ user }) {
       <td>{book.title}</td>
       <td>{book.author}</td>
       <td>{book.publicationDate || ''}</td>
+      <td>{book.tags ? book.tags.join(' ') : ''}</td>
       <td>
         <button onClick={deleteBook(book.key)}>delete</button>
       </td>
@@ -52,7 +61,7 @@ function Books({ user }) {
 
   const addRow = () =>
     (async () => {
-      let newBooks = [...books, input]
+      let newBooks = [...books, { ...input, tags: input.tags.trim().split(/[\s,]+/) }]
       setBooks(newBooks)
       const bookRef = await addDoc(collection(db, 'books'), input)
       newBooks[newBooks.length - 1].key = bookRef.id
@@ -66,7 +75,8 @@ function Books({ user }) {
         <tr>
           <th>Title</th>
           <th>Author</th>
-          <th>Publication Date</th>
+          <th>Date</th>
+          <th>Tags</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -76,6 +86,7 @@ function Books({ user }) {
           {inputCell('title')}
           {inputCell('author')}
           {inputCell('publicationDate', 'number')}
+          {inputCell('tags')}
           <td>
             <button onClick={addRow}>+</button>
           </td>
