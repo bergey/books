@@ -1,10 +1,12 @@
-import { query, orderBy, addDoc, deleteDoc, doc, getDocs } from 'firebase/firestore/lite'
-import { Book } from './databaseTypes'
-import { useEffect, useState } from 'react'
 import './App.css'
-import { User } from 'firebase/auth'
-import { signOut, onAuthStateChanged, signIn } from './firebase'
 import * as Firebase from './firebase'
+import React, { useEffect, useState } from 'react'
+import { Book } from './databaseTypes'
+import { User } from 'firebase/auth'
+import { query, orderBy, addDoc, deleteDoc, doc, getDocs } from 'firebase/firestore/lite'
+import { signOut, onAuthStateChanged, signIn } from './firebase'
+import { Column, Row, useTable } from 'react-table'
+
 type BooksProps = { user: any }
 
 const Books = ({ user }: BooksProps) => {
@@ -12,6 +14,32 @@ const Books = ({ user }: BooksProps) => {
   const [books, setBooks] = useState(noBooks)
   const emptyInput = { key: '', title: '', author: '', publicationDate: '', tags: [] }
   const [input, setInput] = useState(emptyInput)
+
+  const deleteBook = (key: string) => {
+    return () =>
+      (async () => {
+        console.log(`key=${key}`)
+        setBooks(books.filter(b => b.key !== key))
+        await deleteDoc(doc(Firebase.books, key))
+      })()
+  }
+
+  // React Table
+  const columns: Column<Book>[] = React.useMemo(
+    () => [
+        { Header: 'Title', accessor: 'title'},
+        {Header: 'Author', accessor: 'author'},
+        {Header: 'Date', accessor: 'publicationDate'},
+        {Header: 'Tags', accessor: 'tags'},
+        {Header: 'Action', id: 'delete', Cell: ({row}: {row: Row<Book>}) => {
+            // console.log(row)
+            return(
+                <button onClick={deleteBook(row.original.key)}>delete</button>
+            )
+        }
+        }
+    ], [])
+  const tablet = useTable({columns, data: books})
 
   useEffect(() => {
     ;(async () => {
@@ -22,26 +50,18 @@ const Books = ({ user }: BooksProps) => {
     })()
   }, [user])
 
-  function deleteBook(key: string) {
-    return () =>
-      (async () => {
-        console.log(`key=${key}`)
-        await deleteDoc(doc(Firebase.books, key))
-        setBooks(books.filter(b => b.key !== key))
-      })()
-  }
-
-  const rows = books.map(book => (
-    <tr key={book.key}>
-      <td>{book.title}</td>
-      <td>{book.author}</td>
-      <td>{book.publicationDate || ''}</td>
-      <td>{book.tags ? book.tags.join(' ') : ''}</td>
-      <td>
-        <button onClick={deleteBook(book.key)}>delete</button>
-      </td>
-    </tr>
-  ))
+  const rows = tablet.rows.map(row => {
+      tablet.prepareRow(row)
+      return (
+          <tr {...row.getRowProps()}>
+              {row.cells.map(cell => (
+                  <td {...cell.getCellProps()}>
+                      {cell.render('Cell')}
+                  </td>
+              ))}
+          </tr>
+      )
+  })
 
   const inputCell = (name: keyof Book, ty = 'text') => (
     <td>
@@ -70,17 +90,19 @@ const Books = ({ user }: BooksProps) => {
     })()
 
   return (
-    <table>
+      <table {...tablet.getTableProps()}>
       <thead>
-        <tr>
-          <th>Title</th>
-          <th>Author</th>
-          <th>Date</th>
-          <th>Tags</th>
-          <th>Action</th>
-        </tr>
+          {tablet.headerGroups.map(headerGroup => (
+              <tr {...headerGroup.getHeaderGroupProps()} >
+                  {headerGroup.headers.map(column => (
+                      <th {...column.getHeaderProps()}>
+                          {column.render('Header')}
+                      </th>
+                  ))}
+              </tr>
+          ))}
       </thead>
-      <tbody>
+          <tbody {...tablet.getTableBodyProps()}>
         {rows}
         <tr>
           {inputCell('title')}
@@ -117,7 +139,7 @@ function App() {
       </p>
     )
   } else {
-    loginStatus = <p>not logged in</p>
+      loginStatus = <p>not logged in; changes will not be saved</p>
   }
 
   return (
