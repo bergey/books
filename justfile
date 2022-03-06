@@ -1,5 +1,3 @@
-.PHONY: build deploy
-
 build:
 	yarn build
 
