@@ -15,14 +15,14 @@ const Books = ({ user }: BooksProps) => {
   const emptyInput = { key: '', title: '', author: '', publicationDate: '', tags: [] }
   const [input, setInput] = useState(emptyInput)
 
-  const deleteBook = (key: string) => {
+    const deleteBook = React.useCallback((key: string) => {
     return () =>
       (async () => {
         console.log(`key=${key}`)
-        setBooks(books.filter(b => b.key !== key))
+        setBooks(books => books.filter(b => b.key !== key))
         await deleteDoc(doc(Firebase.books, key))
       })()
-  }
+    }, [])
 
   // React Table
   const columns: Column<Book>[] = React.useMemo(
@@ -38,7 +38,7 @@ const Books = ({ user }: BooksProps) => {
             )
         }
         }
-    ], [])
+    ], [deleteBook])
   const tablet = useTable({columns, data: books})
 
   useEffect(() => {
