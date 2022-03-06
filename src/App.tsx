@@ -118,6 +118,18 @@ const Books = ({ user }: BooksProps) => {
   )
 }
 
+const upload_csv = (file: any) => {
+    // fetch('/upload-csv', {method: 'POST', body: file})
+    fetch('http://localhost:5001/books-331420/us-central1/upload_csv',
+          { method: 'POST',
+            body: file,
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'text/plain'
+            }
+          })
+}
+
 function App() {
   const [user, setUser] = useState<User|null>(null)
 
@@ -146,6 +158,7 @@ function App() {
     <>
       <Books user={user} />
       {loginStatus}
+          <input type="file" onChange={(ev: any)=> upload_csv(ev.target.files[0])}/>
     </>
   )
 }
