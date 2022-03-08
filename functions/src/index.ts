@@ -22,8 +22,8 @@ export const upload_csv = functions.https.onRequest((req, res) => {
   }
   const csv_books: Array<Book> = csv(req.body, { comment: '#', columns: true })
   functions.logger.debug(`file is ${csv_books.length} lines long`, { structuredData: true })
-  for (const row in csv_books) {
-    books.add(csv_books[row])
+  for (const row of csv_books) {
+    books.add(row)
   }
   res.send('Hello from Firebase!')
 })
