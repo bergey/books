@@ -119,8 +119,7 @@ const Books = ({ user }: BooksProps) => {
 }
 
 const upload_csv = (file: any) => {
-    // fetch('/upload-csv', {method: 'POST', body: file})
-    fetch('http://localhost:5001/books-331420/us-central1/upload_csv',
+    fetch('/upload_csv',
           { method: 'POST',
             body: file,
             mode: 'no-cors',
