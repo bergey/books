@@ -22,19 +22,19 @@ const provider = new Auth.GoogleAuthProvider()
 
 // TODO redirect on mobile instead of popup
 export const signIn = () =>
-      Auth.signInWithPopup(auth, provider)
-          .then(result => {
-            console.log(result.user)
-          })
-          .catch(error => {
-            // Handle Errors here.
-            const errorCode = error.code
-            const errorMessage = error.message
-            // The email of the user's account used.
-            const email = error.email
-            // The AuthCredential type that was used.
-            console.log({ errorCode, errorMessage, email })
-          })
+  Auth.signInWithPopup(auth, provider)
+    .then(result => {
+      console.log(result.user)
+    })
+    .catch(error => {
+      // Handle Errors here.
+      const errorCode = error.code
+      const errorMessage = error.message
+      // The email of the user's account used.
+      const email = error.email
+      // The AuthCredential type that was used.
+      console.log({ errorCode, errorMessage, email })
+    })
 export const onAuthStateChanged = (callback: (u: Auth.User | null) => void) =>
-    Auth.onAuthStateChanged(auth, callback)
+  Auth.onAuthStateChanged(auth, callback)
 export const signOut = () => Auth.signOut(auth)
